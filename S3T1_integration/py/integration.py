@@ -65,8 +65,11 @@ def quad(func, x0, x1, xs, **kwargs):
     xs: nodes
     **kwargs passed to moments()
     """
-    q = [[p**s for p in xs] for s in range(len(xs))]
-    return np.sum(np.linalg.solve(q, moments(len(xs)-1, x0, x1, **kwargs)).dot(func(xs)))
+    m = moments(len(xs)-1, x0, x1, **kwargs)
+    q = np.vander(xs)[:, ::-1].T
+    a = np.linalg.solve(q, m)
+
+    return a.dot(func(xs))
 
 
 def quad_gauss(func, x0, x1, n, **kwargs):
@@ -91,10 +94,10 @@ def composite_quad(func, x0, x1, n_intervals, n_nodes, **kwargs):
     n_intervals: number of intervals
     n_nodes: number of nodes on each interval
     """
-    borders = [x0 + i * (x1 - x0) / n_intervals for i in range(n_intervals+1)]
+    borders = np.linspace(x0, x1, n_intervals+1)
     s = 0
     for i in range(n_intervals):
-        s += quad_gauss(func, borders[i], borders[i+1], n_nodes, **kwargs)
+        s += quad(func, borders[i], borders[i+1], np.linspace(borders[i], borders[i+1], n_nodes), **kwargs)
     return s
 
 
@@ -103,4 +106,24 @@ def integrate(func, x0, x1, tol):
     integrate with error <= tol
     return: result, error estimation
     """
-    raise NotImplementedError
+    nodes = 3
+    L = 2
+    h0 = x1-x0
+    condReached = False
+    while True:
+        threeLastSi = []
+        h = []
+        for i in range(3):
+            h.append(h0/L**i)
+            n = math.ceil((x1-x0)/h[i])
+            threeLastSi.append(composite_quad(func,x0,x1,n, nodes))
+        m = aitken(threeLastSi[0], threeLastSi[1], threeLastSi[2], L)
+        r1, r2 = runge(threeLastSi[1], threeLastSi[2], m, L)
+        if condReached:
+            break
+        elif r2 < tol:
+            h0 *= 0.95
+            condReached = True
+        else:
+            h0 = h[2] * math.pow(tol/abs(r2), 1/m)
+    return threeLastSi[2], max(r2, tol)

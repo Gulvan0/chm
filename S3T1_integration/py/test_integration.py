@@ -14,7 +14,7 @@ from S3T1_integration.py.integration import (quad,
                                              moments)
 
 
-def test_quad_degree():
+def tes_quad_degree():
     """
     check quadrature degree
     Q: why in some cases x^n integrated perfectly with only n nodes?
@@ -29,8 +29,8 @@ def test_quad_degree():
 
         max_node_count = range(1, max_degree+1)
 
-        # Y = [quad(p, x0, x1, np.linspace(x0, x1, node_count)) for node_count in max_node_count]
-        Y = [quad(p, x0, x1, x0 + (x1-x0) * np.random.random(node_count)) for node_count in max_node_count]
+        Y = [quad(p, x0, x1, np.linspace(x0, x1, node_count)) for node_count in max_node_count]
+        # Y = [quad(p, x0, x1, x0 + (x1-x0) * np.random.random(node_count)) for node_count in max_node_count]
         accuracy = get_log_error(Y, y0 * np.ones_like(Y))
         accuracy[np.isinf(accuracy)] = 17
 
@@ -48,7 +48,7 @@ def test_quad_degree():
     plt.show()
 
 
-def test_weighted_quad_degree():
+def tes_weighted_quad_degree():
     """
     check weighted quadrature degree
     we compare n-th moment of weight function calculated in two ways:
@@ -79,7 +79,7 @@ def test_weighted_quad_degree():
             assert d < 1e-6
 
 
-def test_quad_gauss_degree():
+def tes_quad_gauss_degree():
     """
     check gaussian quadrature degree
     """
@@ -110,7 +110,7 @@ def test_quad_gauss_degree():
     plt.show()
 
 
-def test_composite_quad():
+def te_composite_quad():
     """
     test composite 3-node quad
     Q: why convergence speed is ~4?
@@ -148,7 +148,7 @@ def test_composite_quad():
 
 
 @pytest.mark.parametrize('v', [2, 3, 5, 6])
-def test_composite_quad_degree(v):
+def te_composite_quad_degree(v):
     """
     Q: convergence maybe somewhat between 3 and 4, why?
     """
@@ -157,7 +157,7 @@ def test_composite_quad_degree(v):
     plt.figure()
     a, b, alpha, beta, f = params(v)
     x0, x1 = a, b
-    # a, b = -10, 10
+    a, b = -10, 10
     exact = sp_quad(lambda x: f(x) / (x-a)**alpha / (b-x)**beta, x0, x1)[0]
 
     # plot weights
