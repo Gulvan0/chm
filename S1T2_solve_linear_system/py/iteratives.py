@@ -18,6 +18,7 @@ def transform(A, b):
 def richardson(A, b, tol):
     """
     Richardson method, tau_k = ||A||
+    returns: list of x, list of y
     """
     tau = la.norm(A)
 
@@ -39,12 +40,16 @@ def richardson(A, b, tol):
 def jacobi(A, b, tol):
     """
     Jacobi method
+    returns: list of x, list of y
     """
     raise NotImplementedError
+    return xs, ys
 
 
 def seidel(A, b, tol):
     """
     Gauss-Seidel method
+    returns: list of x, list of y
     """
     raise NotImplementedError
+    return xs, ys

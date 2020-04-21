@@ -13,4 +13,10 @@ adams_coeffs = {
 
 
 def adams(func, y_start, T, coeffs, one_step_method: OneStepMethod):
+    """
+    T: list of timestamps
+    coeffs: list of coefficients
+    one_step_method: method for initial steps
+    return list of t (same as T), list of y
+    """
     raise NotImplementedError

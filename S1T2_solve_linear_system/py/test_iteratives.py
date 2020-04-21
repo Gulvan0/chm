@@ -6,6 +6,9 @@ from S1T2_solve_linear_system.py.iteratives import richardson, jacobi, seidel
 
 
 def test_iteratives():
+    """
+    Q: which is the best? why?
+    """
     n = 5
     A = np.array([
         [n + 2, 1, 1],

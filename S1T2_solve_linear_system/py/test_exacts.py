@@ -14,6 +14,7 @@ def test_lu():
     """
     check your LU vs SciPy's LU
     NB: SciPy's returns (P,L,U), where P is a permutational matrix, but here P is identity matrix
+    Q: what's the complexity of your LU algorithm?
     """
     with np.printoptions(precision=3, suppress=True):
         A = np.array([
@@ -33,6 +34,7 @@ def test_qr():
     """
     check your QR vs NumPy's QR
     NB: signs of Q's and R's can differ
+    Q: what's the complexity of your QR algorithm?
     """
     with np.printoptions(precision=3, suppress=True):
         A = np.array([
@@ -91,3 +93,47 @@ def test_qr_solve(n):
 
     x = solve_qr(A, b)
     assert npla.norm(x - 1) < 1e-6
+
+
+def test_condition():
+    """
+    check condition numbers
+    Q: how condition number affect solving linear system?
+    """
+    # with np.printoptions(precision=3, suppress=True):
+    with np.printoptions(precision=3, suppress=True):
+        rnd = np.random.RandomState(88)
+        A = rnd.rand(5, 5)
+
+        print()
+        print(A)
+
+        a_cond = npla.cond(A)
+        svd_U, S, svd_V = npla.svd(A)
+        print(f'singular values: {S}')
+        print(f'condition number: {S[0]:.3f} / {S[-1]:.3f} = {a_cond:.3f}')
+
+        L, U = lu(A)
+        l_cond = npla.cond(L)
+        u_cond = npla.cond(U)
+        print('A = LU:')
+        print(f'\tL cond: {l_cond:.3f}')
+        print(f'\tU cond: {u_cond:.3f}')
+
+        Q, R = qr(A)
+        q_cond = npla.cond(Q)
+        r_cond = npla.cond(R)
+        print('A = QR:')
+        print(f'\tQ cond: {q_cond:.3f}')
+        print(f'\tR cond: {r_cond:.3f}')
+
+        P, L, U = spla.lu(A)
+        l_cond = npla.cond(L)
+        u_cond = npla.cond(U)
+        print('A = PLU:')
+        print(f'\tL cond: {l_cond:.3f}')
+        print(f'\tU cond: {u_cond:.3f}')
+
+        assert np.abs(q_cond - 1) < 1e-6
+        assert np.abs(q_cond * r_cond - a_cond) < 1e-6
+        assert q_cond * r_cond <= l_cond * u_cond

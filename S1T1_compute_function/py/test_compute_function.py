@@ -19,7 +19,7 @@ from S1T1_compute_function.py import compute_function as cf
                          )
 @pytest.mark.parametrize('tol', 10. ** np.array(range(-1, -10, -1)))
 def test_elementaries(func, tol):
-    for x0 in np.linspace(0, 1, 11):
+    for x0 in np.linspace(0, 2, 11):
         sp_func = func(x).func  # convert sp.sqrt() to sp.Pow()
         res = cf.calc_elem_func(sp_func, x0=x0, eps=tol)
         exact = func(x).subs({x: x0})
@@ -35,15 +35,13 @@ def test_elementaries(func, tol):
 @pytest.mark.parametrize('function',
                          [
                              (x + 0.4) ** (1/2) + sp.sin(sp.cos(3 * x + 1)),
-
                              (1 + sp.atan(16.7 * x + 0.1)) ** 2 / sp.cos(7 * x + 0.3),
-                             sp.exp(1+x) * sp.cos(sp.sqrt(1 + x)),
-                             (2 * x + 0.4) ** (1/2) * sp.atan(sp.cos(3 * x + 1)),
+                             sp.exp(1 + x) * sp.cos(sp.sqrt(1 + x)),
                              sp.sinh(2 * x + 0.45) ** (1/2) / sp.atan(6 * x + 1),
                              sp.cosh(1 + (1 + x) ** (1/2)) * sp.cos(1 + x - x**2),
                          ]
                          )
-@pytest.mark.parametrize('tol', 10. ** np.array(range(-1, -6, -2)))
+@pytest.mark.parametrize('tol', 10. ** np.array([-1, -3, -5]))
 def test_composites(function, tol):
     for x0 in np.linspace(0, 1, 11):
         res = cf.calc(function, x0=x0, eps=tol)

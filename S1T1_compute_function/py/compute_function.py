@@ -47,28 +47,14 @@ def estimate_abs(function, x0):
     """
     estimate |f(x)| boundaries
     """
-    x1, x2 = float(0.9*function.subs({x: x0})), float(1.1*function.subs({x: x0}))
-
-    # sympy's solve() and solveset() are full of bugs, so we'll try to avoid them
-    # interval = sp.Interval(x1, x2)
-    # roots = sp.solveset(function.diff(), domain=interval)
-    # roots &= interval
-    # roots |= interval.boundary
-
-    roots = np.linspace(float(x1), float(x2), 100)
-    inf = sp.oo
-    sup = -sp.oo
-    for r in roots:
-        inf = min(inf, abs(function.subs(x, r)))
-        sup = max(sup, abs(function.subs(x, r)))
-    return inf, sup
+    f0 = function.subs({x: x0})  # let's pretend we don't know this value
+    return 0.9*abs(f0), 1.1*abs(f0) + 0.1
 
 
 def calc_elem_func(func, x0, eps):
     """
     numerically calculates elementary functions
     """
-    # print('\telem func:', func, x0, eps)
 
     # sqrt(x)
     if func == sp.Pow:
@@ -142,7 +128,7 @@ def calc(function, x0, eps):
             k = function.args[1]
             if isinstance(k, sp.Integer):
                 g = function.args[0]
-                derivative = k * sp.Pow(x, k - 1)
+                derivative = k * sp.Pow(g, k - 1)
                 b_u0, b_u1 = estimate_abs(derivative, x0)
 
                 u = calc(g, x0, eps / b_u1)
@@ -154,3 +140,5 @@ def calc(function, x0, eps):
             raise NotImplementedError(function.func)
 
         raise NotImplementedError(function.func)
+
+    raise NotImplementedError(f'{len(function.args)}-term operations not yet supported')

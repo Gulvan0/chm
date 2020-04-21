@@ -26,6 +26,7 @@ def solve_lower_triang(A, b):
     solves Ax=b for L-triangular A
     """
     raise NotImplementedError
+    return x
 
 
 def lu(A):
@@ -33,6 +34,7 @@ def lu(A):
     LU decomposition
     """
     raise NotImplementedError
+    return l, u
 
 
 def qr(A):
@@ -40,6 +42,7 @@ def qr(A):
     QR decomposition
     """
     raise NotImplementedError
+    return q, r
 
 
 def solve_lu(A, b):

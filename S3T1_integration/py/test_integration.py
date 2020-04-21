@@ -110,17 +110,17 @@ def test_quad_gauss_degree():
     plt.show()
 
 
-def test_composite_quad():
+@pytest.mark.parametrize('n_nodes', [2, 3, 5])
+def test_composite_quad(n_nodes):
     """
-    test composite 3-node quad
-    Q: why convergence speed is ~4?
+    test composite 2-, 3-, 5-node quads
+    Q: explain converge speed for each case
     """
     plt.figure()
 
     x0, x1 = 0, 1
     L = 2
     n_intervals = [L ** q for q in range(0, 8)]
-    n_nodes = 3
 
     for i, degree in enumerate((5, 6)):
         p = Monome(degree)
@@ -134,15 +134,17 @@ def test_composite_quad():
         aitken_degree = aitken(*Y[0:6:2], L ** 2)
 
         plt.subplot(1, 2, i+1)
+        plt.title(f'{n_nodes}-node CQ for x^{degree}')
         plt.plot(x, k*x+b, 'b:', label=f'{k:.2f}*x+{b:.2f}')
-        plt.plot(x, aitken_degree*x+b, 'm:', label=f'aitken estimation')
+        plt.plot(x, aitken_degree*x+b, 'm:', label=f'aitken ({aitken_degree:.2f})')
         plt.plot(x, accuracy, 'kh', label=f'accuracy for x^{degree}')
         plt.xlabel('log10(node count)')
         plt.ylabel('accuracy')
         plt.legend()
 
-        assert np.abs(aitken_degree - k) < 0.5, \
-            f'Aitken estimation {aitken_degree:.2f} is too far from actual {k:.2f}'
+        if n_nodes < degree:
+            assert np.abs(aitken_degree - k) < 0.5, \
+                f'Aitken estimation {aitken_degree:.2f} is too far from actual {k:.2f}'
 
     plt.show()
 
@@ -203,6 +205,6 @@ def test_integrate():
 
         print(f'Check for tol {tol:.2e}: res = {s-err:.6f} .. {s:.6f} .. {s+err:.6f}')
 
-        assert err >= 0, 'estimated error should be >= 0'
-        assert np.abs(p[x0, x1] - s) <= err, 'actual error should be <= estimated error'
-        assert np.abs(p[x0, x1] - s) <= tol, 'actual error should be <= tolerance'
+        assert err >= 0,                            'estimated error should be >= 0'
+        assert np.abs(p[x0, x1] - s) <= 1.1*err,    'actual error should be <= estimated error + 10%'
+        assert np.abs(p[x0, x1] - s) <= tol,        'actual error should be <= tolerance'
