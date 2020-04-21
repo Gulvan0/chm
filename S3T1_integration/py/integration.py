@@ -11,15 +11,15 @@ def ij(x, a, alpha, j):
         ijminus1 = ij(x, a, alpha, j-1)
     return (ijminus1*j*a + (x-a)**(1 - alpha) * x**j)/(j+ 1 - alpha)
 
-def i0b(x, b, beta):
+def betaZeroInt(x, b, beta):
     return (b-x)**(1 - beta)/(beta-1)
 
-def ijb(x, b, beta, j):
+def betaJOrderInt(x0, x1, b, beta, j):
     if j == 0:
-        return i0b(x, b, beta)
+        return betaZeroInt(x1, b, beta) - betaZeroInt(x0, b, beta)
     else:
-        ijminus1 = ijb(x, b, beta, j-1)
-    return (ijminus1*j*b + (-1)**(j+1) * (b-x)**(1 - beta) * x**j)/(j+ 1 - beta)
+        prevMoment = betaJOrderInt(x0, x1, b, beta, j-1)
+        return (x1**j - x0**j - j*b*prevMoment)/(beta - (j + 1))
 
 
 def moments(max_s, xl, xr, a=None, b=None, alpha=0.0, beta=0.0):
@@ -32,7 +32,7 @@ def moments(max_s, xl, xr, a=None, b=None, alpha=0.0, beta=0.0):
         return [ij(xr,a, alpha,s) - ij(xl,a, alpha,s) for s in range(0, max_s + 1)]
     if beta != 0.0:
         assert b is not None, f'"b" not specified while beta != 0'
-        return [(ijb(xr,b, beta,s) - ijb(xl,b, beta,s)) for s in range(0, max_s + 1)]
+        return [betaJOrderInt(xl, xr, b, beta, s) for s in range(0, max_s + 1)]
 
     if alpha == 0 and beta == 0:
         return [(xr ** s - xl ** s) / s for s in range(1, max_s + 2)]

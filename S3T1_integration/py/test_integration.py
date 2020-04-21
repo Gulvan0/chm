@@ -48,7 +48,7 @@ def tes_quad_degree():
     plt.show()
 
 
-def tes_weighted_quad_degree():
+def test_weighted_quad_degree():
     """
     check weighted quadrature degree
     we compare n-th moment of weight function calculated in two ways:
@@ -79,7 +79,7 @@ def tes_weighted_quad_degree():
             assert d < 1e-6
 
 
-def tes_quad_gauss_degree():
+def test_quad_gauss_degree():
     """
     check gaussian quadrature degree
     """
@@ -110,7 +110,7 @@ def tes_quad_gauss_degree():
     plt.show()
 
 
-def te_composite_quad():
+def test_composite_quad():
     """
     test composite 3-node quad
     Q: why convergence speed is ~4?
@@ -148,7 +148,7 @@ def te_composite_quad():
 
 
 @pytest.mark.parametrize('v', [2, 3, 5, 6])
-def te_composite_quad_degree(v):
+def test_composite_quad_degree(v):
     """
     Q: convergence maybe somewhat between 3 and 4, why?
     """
