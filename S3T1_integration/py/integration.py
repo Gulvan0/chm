@@ -11,6 +11,9 @@ def ij(x, a, alpha, j):
         ijminus1 = ij(x, a, alpha, j-1)
     return (ijminus1*j*a + (x-a)**(1 - alpha) * x**j)/(j+ 1 - alpha)
 
+def momentA(xl, xr, a, alpha, j):
+    return ij(xr,a, alpha,j) - ij(xl,a, alpha,j) 
+
 def betaZeroInt(x, b, beta):
     return (b-x)**(1 - beta)/(beta-1)
 
@@ -21,6 +24,12 @@ def betaJOrderInt(x0, x1, b, beta, j):
         prevMoment = betaJOrderInt(x0, x1, b, beta, j-1)
         return (x1**j - x0**j - j*b*prevMoment)/(beta - (j + 1))
 
+def momentB(xl, xr, b, beta, j):
+    m = momentA(-xr, -xl, -b, beta, j)
+    if j % 2 == 0:
+        return m
+    else:
+        return -m  
 
 def moments(max_s, xl, xr, a=None, b=None, alpha=0.0, beta=0.0):
     """
@@ -29,10 +38,11 @@ def moments(max_s, xl, xr, a=None, b=None, alpha=0.0, beta=0.0):
     assert alpha * beta == 0, f'alpha ({alpha}) and/or beta ({beta}) must be 0'
     if alpha != 0.0:
         assert a is not None, f'"a" not specified while alpha != 0'
-        return [ij(xr,a, alpha,s) - ij(xl,a, alpha,s) for s in range(0, max_s + 1)]
+        return [momentA(xl, xr, a, alpha, s) for s in range(0, max_s + 1)]
     if beta != 0.0:
         assert b is not None, f'"b" not specified while beta != 0'
-        return [betaJOrderInt(xl, xr, b, beta, s) for s in range(0, max_s + 1)]
+        return [momentB(xl, xr, b, beta, s) for s in range(0, max_s + 1)]
+        # return [betaJOrderInt(xl, xr, b, beta, s) for s in range(0, max_s + 1)]
 
     if alpha == 0 and beta == 0:
         return [(xr ** s - xl ** s) / s for s in range(1, max_s + 2)]
@@ -98,6 +108,7 @@ def composite_quad(func, x0, x1, n_intervals, n_nodes, **kwargs):
     s = 0
     for i in range(n_intervals):
         s += quad(func, borders[i], borders[i+1], np.linspace(borders[i], borders[i+1], n_nodes), **kwargs)
+        # s += quad_gauss(func, borders[i], borders[i+1], n_nodes, **kwargs)
     return s
 
 

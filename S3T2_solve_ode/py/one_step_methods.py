@@ -2,6 +2,7 @@ import numpy as np
 from copy import copy
 from scipy.integrate import RK45, solve_ivp
 from scipy.optimize import fsolve
+from scipy.optimize import newton
 
 import S3T2_solve_ode.py.coeffs_collection as collection
 from utils.ode_collection import ODE
@@ -17,7 +18,7 @@ class OneStepMethod:
         """
         make a step: t => t+dt
         """
-        raise NotImplementedError
+        return t+dt
 
 
 class ExplicitEulerMethod(OneStepMethod):
@@ -41,7 +42,9 @@ class ImplicitEulerMethod(OneStepMethod):
         super().__init__(name='Euler (implicit)', p=1)
 
     def step(self, func: ODE, t, y, dt):
-        raise NotImplementedError
+        def leftside(yn1):
+            return yn1 - dt * func(t, yn1) - y
+        return fsolve(leftside, y)
 
 
 class RungeKuttaMethod(OneStepMethod):
@@ -54,10 +57,15 @@ class RungeKuttaMethod(OneStepMethod):
 
     def step(self, func: ODE, t, y, dt):
         A, b = self.A, self.b
-        rk = RK45(func, t, y, t + dt)
-        rk.h_abs = dt
-        rk.step()
-        return rk.y
+        c = np.sum(A, axis=1)
+        k = []
+        for i in range(len(A)):
+            s = 0
+            for j in range(i):
+                s += A[i,j]*k[j]
+            k.append(func(t + dt * c, y + dt * s))
+        K = np.array(k)
+        return y + dt * (b @ K)
 
 
 class EmbeddedRungeKuttaMethod(RungeKuttaMethod):
@@ -72,9 +80,15 @@ class EmbeddedRungeKuttaMethod(RungeKuttaMethod):
 
     def embedded_step(self, func: ODE, t, y, dt):
         A, b, e = self.A, self.b, self.e
-        c = np.sum(A, axis=0)
-        raise NotImplementedError
-        return y1, dy
+        c = np.sum(A, axis=1)
+        k = []
+        for i in range(len(A)):
+            s = 0
+            for j in range(i):
+                s += A[i,j]*k[j]
+            k.append(func(t + dt * c, y + dt * s))
+        K = np.array(k)
+        return y + dt * (b @ K), e @ K
 
 
 class EmbeddedRosenbrockMethod(OneStepMethod):
@@ -89,6 +103,15 @@ class EmbeddedRosenbrockMethod(OneStepMethod):
 
     def embedded_step(self, func: ODE, t, y, dt):
         A, G, g, b, e = self.A, self.G, self.gamma, self.b, self.e
-        c = np.sum(A, axis=0)
-        raise NotImplementedError
-        return y1, dy
+        c = np.sum(A, axis=1)
+        k = np.zeros((np.size(b), len(y)))
+        I = np.eye(len(y))
+        coefk = I - g * dt * func.jacobian(t, y)
+        for i in range(len(A)):
+            leftside = dt*func(t + c[i] * dt, y + np.dot(A[i], k)) + dt * func.jacobian(t, y).dot(np.dot(G[i], k))
+            k[i] = np.linalg.inv(coefk) @ leftside
+        print(np.linalg.inv(coefk) @ leftside)
+        print(b.shape)
+        print(np.array(k).shape)
+        print(e.shape)
+        return y + b @ k, e @ k

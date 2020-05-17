@@ -7,6 +7,7 @@ from S3T2_solve_ode.py.solve_ode import adaptive_step_integration, AdaptType
 from S3T2_solve_ode.py.one_step_methods import (
     ExplicitEulerMethod,
     ImplicitEulerMethod,
+    RungeKuttaMethod,
     EmbeddedRosenbrockMethod,
 )
 import S3T2_solve_ode.py.coeffs_collection as collection
@@ -17,9 +18,9 @@ def test_stiff():
     test explicit vs implicit methods on a stiff problem
     """
     t0 = 0
-    t1 = 800*np.pi
+    t1 = 8*np.pi
 
-    mu = 1000
+    mu = 0
     y0 = np.array([2., 0.])
     f = VanDerPol(y0, mu)
 
@@ -28,6 +29,7 @@ def test_stiff():
             [
                 (ExplicitEulerMethod(),                                    AdaptType.RUNGE),
                 (ImplicitEulerMethod(),                                    AdaptType.RUNGE),
+                (RungeKuttaMethod(collection.rk4_coeffs),                  AdaptType.RUNGE),
                 (EmbeddedRosenbrockMethod(collection.rosenbrock23_coeffs), AdaptType.EMBEDDED),
             ]
     ):

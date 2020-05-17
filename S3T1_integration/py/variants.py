@@ -37,7 +37,6 @@ def params(v):
 
     return A[v], B[v], Al[v], Be[v], f
 
-
 def exactint(v):
     """ Gives an "exact" value for the variant number"""
     exactvals = [7.077031437995793610263911711602477164432,

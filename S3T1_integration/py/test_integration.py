@@ -110,7 +110,7 @@ def test_quad_gauss_degree():
     plt.show()
 
 
-@pytest.mark.parametrize('n_nodes', [2, 3, 5])
+@pytest.mark.parametrize('n_nodes', [2, 3, 4, 5])
 def test_composite_quad(n_nodes):
     """
     test composite 2-, 3-, 5-node quads
@@ -155,16 +155,17 @@ def test_composite_quad_degree(v):
     Q: convergence maybe somewhat between 3 and 4, why?
     """
     from .variants import params
+    from .variants import exactint
 
     plt.figure()
     a, b, alpha, beta, f = params(v)
     x0, x1 = a, b
-    a, b = -10, 10
-    exact = sp_quad(lambda x: f(x) / (x-a)**alpha / (b-x)**beta, x0, x1)[0]
+    #a, b = -10, 10
+    exact = exactint(v) #sp_quad(lambda x: f(x) / (x-a)**alpha / (b-x)**beta, x0, x1)[0]
 
     # plot weights
     xs = np.linspace(x0, x1, 101)
-    ys = 1 / ((xs-a)**alpha * (b-xs)**beta)
+    ys = 1 / (xs-a)**alpha / (b-xs)**beta
     plt.subplot(1, 2, 1)
     plt.plot(xs, ys, label='weights')
     ax = list(plt.axis())
@@ -186,8 +187,8 @@ def test_composite_quad_degree(v):
     # plot acc
     plt.subplot(1, 2, 2)
     plt.plot(x, accuracy, 'kh')
-    plt.xlabel('log10(node count)')
-    plt.ylabel('accuracy')
+    plt.xlabel(Y)
+    plt.ylabel(exact)
     plt.suptitle(f'variant #{v} (alpha={alpha:4.2f}, beta={beta:4.2f})\n'
                  f'aitken estimation: {aitken_degree:.2f}')
     plt.show()
